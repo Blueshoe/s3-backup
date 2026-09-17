@@ -1,6 +1,35 @@
 # S3 Backup
 [![GitHub Marketplace](https://img.shields.io/badge/Marketplace-S3%20Backup-blue.svg?colorA=24292e&colorB=0366d6&style=flat&longCache=true&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAM6wAADOsB5dZE0gAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAERSURBVCiRhZG/SsMxFEZPfsVJ61jbxaF0cRQRcRJ9hlYn30IHN/+9iquDCOIsblIrOjqKgy5aKoJQj4O3EEtbPwhJbr6Te28CmdSKeqzeqr0YbfVIrTBKakvtOl5dtTkK+v4HfA9PEyBFCY9AGVgCBLaBp1jPAyfAJ/AAdIEG0dNAiyP7+K1qIfMdonZic6+WJoBJvQlvuwDqcXadUuqPA1NKAlexbRTAIMvMOCjTbMwl1LtI/6KWJ5Q6rT6Ht1MA58AX8Apcqqt5r2qhrgAXQC3CZ6i1+KMd9TRu3MvA3aH/fFPnBodb6oe6HM8+lYHrGdRXW8M9bMZtPXUji69lmf5Cmamq7quNLFZXD9Rq7v0Bpc1o/tp0fisAAAAASUVORK5CYII=)](https://github.com/marketplace/actions/s3-backup)
 
+> ## Blueshoe fork
+>
+> Upstream `peter-evans/s3-backup` is a Docker action that builds
+> `FROM minio/mc:RELEASE.2022-05-04T06-07-55Z`. MinIO stopped hosting free
+> public images on Docker Hub and that repository is gone, so every run fails
+> while GitHub builds the action during job setup — before the first step
+> executes. A step that pulls the image from another registry cannot fix this,
+> because it never gets to run.
+>
+> This fork replaces the base image with `chainguard/minio-client:latest-dev`,
+> identical to the open upstream PR peter-evans/s3-backup#21. Upstream is
+> effectively unmaintained (last release v1.1.1, October 2022), so this fork is
+> the source of truth for Blueshoe.
+>
+> Nothing else is changed. `entrypoint.sh` and `action.yml` are untouched, so
+> the only line that differs in a consuming workflow is:
+>
+> ```yml
+>       uses: Blueshoe/s3-backup@v1
+> ```
+>
+> Two things to know before touching this repo:
+>
+> - The base image is deliberately **not** digest-pinned. Chainguard's free
+>   tier only publishes the mutable `latest` / `latest-dev` tags and garbage
+>   collects older digests, so a pin would break within days.
+> - The `v1` tag is force-moved onto this fork's own commit. Syncing this fork
+>   with upstream resets that tag and reintroduces the broken base image.
+
 A GitHub action to mirror a repository to S3 compatible object storage.
 
 ## Usage
